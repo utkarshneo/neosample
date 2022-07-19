@@ -1,0 +1,53 @@
+name: Build Docker Image & Publish on jFrog
+
+on:
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME : {% raw %} ${{ github.repository }}:${{github.run_number}} {% endraw %}
+  
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+
+
+    - name: Set up NodeJs
+      uses: actions/setup-node@v3
+      with:
+      node-version : '14'
+      distribution: 'adopt'
+
+
+     - name: Build with Maven
+      run: mvn --batch-mode --update-snapshots package        
+    
+    - name: docker Login to Jfrog
+      run: {% raw %} echo ${{secrets.JFROG_API_KEY}} {% endraw %} | docker login -u${{values.jfrog_username}} --password-stdin ${{ values.jfrog_domain }} 
+
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag ${{ values.jfrog_domain }}/${{values.jfrog_reponame}}/$IMAGE_NAME
+
+    - name: docker Push Image to Jfrog
+      run: docker push ${{values.jfrog_domain}}/${{values.jfrog_reponame}}/$IMAGE_NAME
+
+    - name: docker logout
+      run: docker logout
+    
+    - uses: azure/aks-set-context@v1
+      with:
+        creds: {% raw %} ${{secrets.AZURE}} {% endraw %}
+        cluster-name: mckinsey
+        resource-group: rearportal
+        
+    - name: Kubernetes Deployment
+      uses: azure/k8s-deploy@v1
+      with:
+        manifests: |
+          kubernetes.yaml
+        namespace: default

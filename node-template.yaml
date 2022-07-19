@@ -1,0 +1,133 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: template-java-springboot
+  title: Java Springboot Template 
+  description: Demo Template with Java Springboot
+spec:
+  owner: team-a
+  type: website
+
+  parameters:
+    - title: Basic Configuration
+      required:
+        - component_id
+      properties:
+        component_id:
+          title: Name
+          type: string
+          description: Unique name of the component. This will be used as java artifact id and backstage catalog information 
+          ui:field: EntityNamePicker
+          ui:autofocus: true
+        description:
+          title: Description
+          type: string
+          description: Help others understand what this website is for. Will be used in generated documentation
+
+    - title: SpringBoot Configuration
+      required:
+        - java_package_name
+        - application_port
+      properties:
+        java_package_name:
+          title: Java Sub Package Name 
+          type: string
+          description: Complete Java Package Name will be "com.example.*" where * will be replaced with the value of this field
+        application_port:
+          title: Application Port
+          type: integer
+          description: The port number on which the application would listen
+    
+    - title: Choose Github Location
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
+    - title: jFrog Configuration
+      required: 
+        - jfrogDomain
+        - jfrogUserName
+        - jfrogRepoName
+      properties:
+          jfrogDomain:
+            title: JFrog Domain (In the form *.jfrog.io)
+            type: string
+            description: Domain of the JFrog Repository
+            default: noicecurse.jfrog.io
+          jfrogUserName:
+            title: JFrog UserName
+            type: string
+            description: JFrog User Name
+            default: nishkarsh.raj@statusneo.com 
+          jfrogRepoName: 
+            title: JFrog Repository Name
+            type: string
+            description: JFrog Repository Name
+            default: default-docker-local
+
+    - title: Backstage Catalog Item Configuration
+      required:
+        - owner
+      properties:
+        owner:
+          title: Entity Owner
+          type: string
+          description: Owner of the Created Entity in Backastage
+          ui:field: OwnerPicker
+          ui:options:
+            allowedKinds: [Group]
+
+  
+  steps:
+    - id: fetch
+      name: Fetch Temlate
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          component_id: ${{ parameters.component_id }}
+          description: ${{ parameters.description }}
+          artifact_id: ${{ parameters.component_id }}
+          owner: ${{ parameters.owner }}
+          java_package_name: ${{ parameters.java_package_name }}
+          http_port: ${{ parameters.application_port }}
+          destination: ${{ parameters.repoUrl | parseRepoUrl }}
+          jfrog_domain: ${{parameters.jfrogDomain}}
+          jfrog_username: ${{parameters.jfrogUserName}}
+          jfrog_reponame: ${{parameters.jfrogRepoName}}
+
+    - id: log
+      name: Logs Message
+      action: debug:log
+      input: 
+        message: Fetched Templated Details from github
+
+    - id: publish
+      name: Publish On Github
+      action: publish:github
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        repoVisibility: public 
+
+    - id: register
+      name: Register
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: '/backstage/catalog-info.yaml'
+
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Open in catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}
