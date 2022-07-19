@@ -24,7 +24,7 @@ spec:
           type: string
           description: Help others understand what this website is for. Will be used in generated documentation
 
-    - title: SpringBoot Configuration
+    - title: Jfrog Configuration
       required:
         - nodejs_package_name
         - application_port
