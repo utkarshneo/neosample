@@ -7,6 +7,7 @@ metadata:
   {%- endif %}  
   annotations:
     github.com/project-slug: ${{values.destination.owner + "/" + values.destination.repo}}
+    sonarqube.org/project-key: ${{values.destination.owner + "_" + values.destination.repo}}
 spec:
   type: service
   owner: ${{values.owner | dump}}

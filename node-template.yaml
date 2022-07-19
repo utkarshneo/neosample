@@ -1,9 +1,9 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: template-java-springboot
-  title: Java Springboot Template 
-  description: Demo Template with Java Springboot
+  name: NodeJs CI/CD template
+  title: NodeJs Template
+  description: Demo template with NodeJs
 spec:
   owner: team-a
   type: website
@@ -26,13 +26,13 @@ spec:
 
     - title: SpringBoot Configuration
       required:
-        - java_package_name
+        - nodejs_package_name
         - application_port
       properties:
-        java_package_name:
-          title: Java Sub Package Name 
+        nodejs_package_name:
+          title: NodeJs package name
           type: string
-          description: Complete Java Package Name will be "com.example.*" where * will be replaced with the value of this field
+          description: NodeJs package Name
         application_port:
           title: Application Port
           type: integer
@@ -60,12 +60,12 @@ spec:
             title: JFrog Domain (In the form *.jfrog.io)
             type: string
             description: Domain of the JFrog Repository
-            default: noicecurse.jfrog.io
+            default: neosample.jfrog.io
           jfrogUserName:
             title: JFrog UserName
             type: string
             description: JFrog User Name
-            default: nishkarsh.raj@statusneo.com 
+            default: utkarshkumar@outook.com
           jfrogRepoName: 
             title: JFrog Repository Name
             type: string
@@ -96,7 +96,6 @@ spec:
           description: ${{ parameters.description }}
           artifact_id: ${{ parameters.component_id }}
           owner: ${{ parameters.owner }}
-          java_package_name: ${{ parameters.java_package_name }}
           http_port: ${{ parameters.application_port }}
           destination: ${{ parameters.repoUrl | parseRepoUrl }}
           jfrog_domain: ${{parameters.jfrogDomain}}
