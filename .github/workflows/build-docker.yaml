@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_NAME : {% raw %} ${{ abc }}:${{232}} {% endraw %}
+  IMAGE_NAME : abc 
   
 jobs:
 
