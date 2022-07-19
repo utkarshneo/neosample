@@ -22,7 +22,7 @@ jobs:
       distribution: 'adopt'
 
     - name: docker Login to Jfrog
-      run: {% raw %} echo ${{secrets.JFROG_API_KEY}} {% endraw %} | docker login -u${{values.jfrog_username}} --password-stdin ${{ values.jfrog_domain }} 
+      run:  echo ${{secrets.JFROG_API_KEY}} | docker login -u${{values.jfrog_username}} --password-stdin ${{ values.jfrog_domain }} 
 
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag ${{ values.jfrog_domain }}/${{values.jfrog_reponame}}/$IMAGE_NAME
@@ -35,7 +35,7 @@ jobs:
     
     - uses: azure/aks-set-context@v1
       with:
-        creds: {% raw %} ${{secrets.AZURE}} {% endraw %}
+        creds:  ${{secrets.AZURE}} 
         cluster-name: mckinsey
         resource-group: rearportal
         
