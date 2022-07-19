@@ -1,7 +1,7 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: NodeJs CI/CD template
+  name: NodeJs_CI/CD_template
   title: NodeJs Template
   description: Demo template with NodeJs
 spec:
