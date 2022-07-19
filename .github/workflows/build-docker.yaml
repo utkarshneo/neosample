@@ -21,10 +21,6 @@ jobs:
       node-version : '14'
       distribution: 'adopt'
 
-
-     - name: Build with Maven
-      run: mvn --batch-mode --update-snapshots package        
-    
     - name: docker Login to Jfrog
       run: {% raw %} echo ${{secrets.JFROG_API_KEY}} {% endraw %} | docker login -u${{values.jfrog_username}} --password-stdin ${{ values.jfrog_domain }} 
 
