@@ -110,29 +110,31 @@ spec:
         message: Fetched Templated Details from github
 
 
-   - id: rest-api
+  
+-id: rest-api
     name: Rest Api Messgae
-    action: mckinsey:http-request
+    action: rest-api-randomuser
     input:
        parmas: test
 
 
-   - id: log
-   name: Logs messgae
-   action: debug:log
-   input: 
-   message: Fetched Template Details from RandomUser
+    - id: log
+    name: Logs messgae
+    action: debug:log
+    input: 
+    message: Fetched Template Details from RandomUser
 
    
     
-
     - id: publish
-      name: Publish On Github
-      action: publish:github
-      input:
+    name: Publish On Github
+    action: publish:github
+    input:
         repoUrl: ${{ parameters.repoUrl }}
         repoVisibility: public 
 
+    
+    
     - id: register
       name: Register
       action: catalog:register
@@ -141,8 +143,8 @@ spec:
         catalogInfoPath: '/backstage/catalog-info.yaml'
 
 
-  output:
-    links:
+    output:
+     links:
       - title: Repository
         url: ${{ steps.publish.output.remoteUrl }}
       - title: Open in catalog
