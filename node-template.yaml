@@ -100,13 +100,31 @@ spec:
           destination: ${{ parameters.repoUrl | parseRepoUrl }}
           jfrog_domain: ${{parameters.jfrogDomain}}
           jfrog_username: ${{parameters.jfrogUserName}}
-          jfrog_reponame: ${{parameters.jfrogRepoName}}
+          jfrog_reponame: ${{parameters.jfrogRepoName}}  
+      
 
     - id: log
       name: Logs Message
       action: debug:log
       input: 
         message: Fetched Templated Details from github
+
+
+   - id: rest-api
+    name: Rest Api Messgae
+    action: mckinsey:http-request
+    input:
+       parmas: test
+
+
+   - id: log
+   name: Logs messgae
+   action: debug:log
+   input: 
+   message: Fetched Template Details from RandomUser
+
+   
+    
 
     - id: publish
       name: Publish On Github
