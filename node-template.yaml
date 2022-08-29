@@ -97,6 +97,11 @@ spec:
       action: rest-api-randomuser
       input:
         params: test
+        
+    - id: Logs 
+      name: Logs Message
+      action: log:message
+      
   output:
     getResponse: ${{ steps.httpRequest.output.result }}
     links:
