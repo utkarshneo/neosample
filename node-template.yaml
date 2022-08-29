@@ -1,77 +1,27 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
+# some metadata about the template itself
 metadata:
-  name: nodejs-template
-  title: NodeJs Template
-  description: Demo template with NodeJs
+  name: Node_js
+  title: NodeJs Basic Templete
+  description: Nodejs project
 spec:
-  owner: team-a
-  type: website
-
+  owner: abhay-statusneo
+  type: service
+  # these are the steps which are rendered in the frontend with the form input
+        
   parameters:
-    - title: Basic Configuration
+    - title: Fill in some steps
       required:
-        - component_id
+        - name
       properties:
-        component_id:
-          title: Name
+        name:
+          title: name
           type: string
-          description: Unique name of the component. This will be used as java artifact id and backstage catalog information 
-          ui:field: EntityNamePicker
+          description: name of the project
           ui:autofocus: true
-        description:
-          title: Description
-          type: string
-          description: Help others understand what this website is for. Will be used in generated documentation
-
-    - title: Jfrog Configuration
-      required:
-        - nodejs_package_name
-        - application_port
-      properties:
-        nodejs_package_name:
-          title: NodeJs package name
-          type: string
-          description: NodeJs package Name
-        application_port:
-          title: Application Port
-          type: integer
-          description: The port number on which the application would listen
-    
-    - title: Choose Github Location
-      required:
-        - repoUrl
-      properties:
-        repoUrl:
-          title: Repository Location
-          type: string
-          ui:field: RepoUrlPicker
-          ui:options:
-            allowedHosts:
-              - github.com
-
-    - title: jFrog Configuration
-      required: 
-        - jfrogDomain
-        - jfrogUserName
-        - jfrogRepoName
-      properties:
-          jfrogDomain:
-            title: JFrog Domain (In the form *.jfrog.io)
-            type: string
-            description: Domain of the JFrog Repository
-            default: neosample.jfrog.io
-          jfrogUserName:
-            title: JFrog UserName
-            type: string
-            description: JFrog User Name
-            default: utkarshkumar@outook.com
-          jfrogRepoName: 
-            title: JFrog Repository Name
-            type: string
-            description: JFrog Repository Name
-            default: default-docker-local
-
+          
+            
     - title: Backstage Catalog Item Configuration
       required:
         - owner
@@ -79,74 +29,79 @@ spec:
         owner:
           title: Entity Owner
           type: string
-          description: Owner of the Created Entity in Backastage
-          ui:field: OwnerPicker
+          description: Owner of the created entity in backstage
+          ui:fileld: OwnerPicker
           ui:options:
             allowedKinds: [Group]
-
-  
+    - title: Choose a location
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          title: Repository Location
+          type: string
+          ui:field: RepoUrlPicker
+          withCredentials: 
+            key: oauth
+          ui:options:
+            allowedHosts:
+              - github.com
+    - title: Port number
+      required:
+        - port
+      properties:
+        port:
+          title: Port to run the application
+          type: integer
+          description: on this port application will run
+          ui:autofocus: true
+  # here's the steps that are executed in series in the scaffolder backend
   steps:
-    - id: fetch
-      name: Fetch Temlate
+        
+    - id: fetch-base
+      name: Fetch Base
       action: fetch:template
       input:
-        url: ./skeleton
+        url: ./template
         values:
-          component_id: ${{ parameters.component_id }}
-          description: ${{ parameters.description }}
-          artifact_id: ${{ parameters.component_id }}
-          owner: ${{ parameters.owner }}
-          http_port: ${{ parameters.application_port }}
-          destination: ${{ parameters.repoUrl | parseRepoUrl }}
-          jfrog_domain: ${{parameters.jfrogDomain}}
-          jfrog_username: ${{parameters.jfrogUserName}}
-          jfrog_reponame: ${{parameters.jfrogRepoName}}  
-      
+          allParameter: ${{ parameters }}
+          owner: ${{ parameters.owner}}
+          name: ${{ parameters.name }}
+          port: ${{ parameters.port }}
 
-    - id: log
-      name: Logs Message
-      action: debug:log
-      input: 
-        message: Fetched Templated Details from github
+    # - id: fetch-docs
+    #   name: Fetch Docs
+    #   action: fetch:plain
+    #   input:
+    #     targetPath: ./community
+    #     url: https://github.com/backstage/community/tree/main/backstage-community-sessions
 
-
-  
--id: rest-api
-    name: Rest Api Messgae
-    action: rest-api-randomuser
-    input:
-       parmas: test
-
-
-    - id: log
-    name: Logs messgae
-    action: debug:log
-    input: 
-    message: Fetched Template Details from RandomUser
-
-   
-    
     - id: publish
-    name: Publish On Github
-    action: publish:github
-    input:
+      name: Publish
+      action: publish:github
+      input:
+        allowedHosts: ['github.com']
+        description: This is ${{ parameters.name }}
         repoUrl: ${{ parameters.repoUrl }}
-        repoVisibility: public 
+        token: ${{ secrets.oauth }}
 
-    
-    
     - id: register
       name: Register
       action: catalog:register
       input:
         repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
-        catalogInfoPath: '/backstage/catalog-info.yaml'
-
-
-    output:
-     links:
-      - title: Repository
-        url: ${{ steps.publish.output.remoteUrl }}
+        catalogInfoPath: '/catalog-info.yaml'
+        
+    - id: httpRequest
+      name: httpRequest
+      action: rest-api-randomuser
+      input:
+        params: test
+  output:
+    getResponse: ${{ steps.httpRequest.output.result }}
+    links:
+      - title: API Response
+        url: ${{ steps.httpRequest.output.result.info.version}}
       - title: Open in catalog
         icon: catalog
         entityRef: ${{ steps.register.output.entityRef }}
